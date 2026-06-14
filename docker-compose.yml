@@ -6,14 +6,6 @@ services:
     container_name: stalwart
     image: stalwartlabs/stalwart:latest
     restart: unless-stopped
-    deploy:
-      resources:
-        limits:
-          cpus: '0.50'
-          memory: 512M
-        reservations:
-          cpus: '0.25'
-          memory: 256M
     # Uncomment 443 and 8080 if you're not using Cloudflare's tunnels
     ports:
       # - "443:443"
@@ -37,20 +29,20 @@ services:
       timeout: 5s
       retries: 3
       start_period: 10s
+    deploy:
+      resources:
+        limits:
+          cpus: '0.50'
+          memory: 512M
+        reservations:
+          cpus: '0.25'
+          memory: 256M
 
   # I will run bulwark on webmail.<domain>.com
   bulwark:
     container_name: bulwark
     image: ghcr.io/bulwarkmail/webmail:latest
     restart: unless-stopped
-    deploy:
-      resources:
-        limits:
-          cpus: '0.30'
-          memory: 384M
-        reservations:
-          cpus: '0.15'
-          memory: 192M
     # Uncomment 3000 if you're not using Cloudflare's tunnels
     # ports:
     #   - 3000:3000
@@ -80,20 +72,20 @@ services:
       timeout: 5s
       retries: 3
       start_period: 10s
+    deploy:
+      resources:
+        limits:
+          cpus: '0.30'
+          memory: 384M
+        reservations:
+          cpus: '0.15'
+          memory: 192M
 
   # I really like Cloudeflare's tunnels. I will only use them for http/https only
   tunnel:
     container_name: tunnel
     image: cloudflare/cloudflared:latest
     restart: unless-stopped
-    deploy:
-      resources:
-        limits:
-          cpus: '0.10'
-          memory: 128M
-        reservations:
-          cpus: '0.05'
-          memory: 64M
     # This won't work if you run this on windows (please don't use windows...)
     volumes:
       - /etc/localtime:/etc/localtime:ro
@@ -107,6 +99,14 @@ services:
       timeout: 10s
       retries: 3
       start_period: 10s
+    deploy:
+      resources:
+        limits:
+          cpus: '0.10'
+          memory: 128M
+        reservations:
+          cpus: '0.05'
+          memory: 64M
 
 # You could also use docker volumes but I personally prefer mounting directly to host paths.
 # volumes:
