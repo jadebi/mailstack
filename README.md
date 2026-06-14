@@ -4,6 +4,8 @@ A Docker-based mail server and webmail client stack using [Stalwart](https://sta
 
 > **Please note:** This repo wires the three services together. If you run into issues with Stalwart, Bulwark or Cloudflare itself, head over to their docs or issue trackers (links above). GitHub issues here should be about the compose setup only.
 
+Running on a tiny VPS (~1 vCPU, ~2 GB RAM, ~20 GB storage)? Check out the [`tiny-vps`](https://github.com/jadebi/mailstack/tree/tiny-vps) branch for resource limits tuned for that setup.
+
 ## Stack
 
 - **Stalwart:** mail server (SMTP, IMAP, JMAP, antivirus, spam filtering). [ [Docs](https://stalw.art/docs) | [GitHub](https://github.com/stalwartlabs) ]
