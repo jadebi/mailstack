@@ -1,0 +1,101 @@
+name: mailstack
+
+services:
+  # I will let this run on mail.<domain>.com
+  stalwart:
+    container_name: stalwart
+    image: stalwartlabs/stalwart:latest
+    restart: unless-stopped
+    # Uncomment 443 and 8080 if you're not using Cloudflare's tunnels
+    ports:
+      # - "443:443"
+      # - "8080:8080"
+      - "25:25"
+      - "587:587"
+      - "465:465"
+      - "143:143"
+      - "993:993"
+      - "110:110"
+      - "995:995"
+      - "4190:4190"
+    volumes:
+      - ./stalwart/etc:/etc/stalwart
+      - ./stalwart/data:/var/lib/stalwart
+    networks:
+      - mailstack-net
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:8080/healthz/ready" ]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+
+  # I will run bulwark on webmail.<domain>.com
+  bulwark:
+    container_name: bulwark
+    image: ghcr.io/bulwarkmail/webmail:latest
+    restart: unless-stopped
+    # Uncomment 3000 if you're not using Cloudflare's tunnels
+    # ports:
+    #   - 3000:3000
+    volumes:
+      # Encrypted user settings (SETTINGS_DATA_DIR).
+      - ./bulwark/settings:/app/data/settings
+      # Admin configuration: config.json, policy.json, admin.json (passwordHash),
+      # plugins, themes, branding uploads (ADMIN_CONFIG_DIR). Can be mounted
+      # read-only after running the setup wizard - append `:ro` to lock it.
+      - ./bulwark/admin:/app/data/admin
+      # Admin runtime state: admin-state.json (login timestamps), audit.log,
+      # setup token (ADMIN_STATE_DIR). Always read-write.
+      - ./bulwark/admin-state:/app/data/admin-state
+      # Anonymous telemetry: instance id, consent state, login HMACs (TELEMETRY_DATA_DIR).
+      # Persisting this preserves the admin's consent choice and stable instance id across upgrades.
+      - ./bulwark/telemetry:/app/data/telemetry
+    environment:
+      HOSTNAME: 0.0.0.0 # Use "::" for IPv6
+      PORT: 3000
+    env_file:
+      - .env.bulwark
+    networks:
+      - mailstack-net
+    healthcheck:
+      test: [ "CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://127.0.0.1:3000/api/health" ]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+
+  # I really like Cloudeflare's tunnels. I will only use them for http/https only
+  tunnel:
+    container_name: tunnel
+    image: cloudflare/cloudflared:latest
+    restart: unless-stopped
+    # This won't work if you run this on windows (please don't use windows...)
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+    env_file:
+      - .env.tunnel
+    networks:
+      - mailstack-net
+    healthcheck:
+      test: [ "CMD", "cloudflared", "--version" ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+
+# You could also use docker volumes but I personally prefer mounting directly to host paths.
+# volumes:
+#   # stalwart
+#   stalwart-etc:
+#   stalwart-data:
+#   # bulwark
+#   bulwark-settings:
+#   bulwark-admin:
+#   bulwark-admin-state:
+#   bulwark-telemetry:
+
+
+networks:
+  mailstack-net:
+    name: mailstack-net
