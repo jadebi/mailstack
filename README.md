@@ -14,14 +14,32 @@ This branch (`tiny-vps`) adds resource limits for a ~1 vCPU, ~2 GB RAM VPS. For 
 
 ## Getting Started
 
-1. Copy the example env files
+1. Clone the repository
+  ```sh
+  git clone https://github.com/jadebi/mailstack.git --branch tiny-vps --single-branch
+  cd mailstack
+  ```
+2. Create data folders with the correct permissions
+  ```sh
+  mkdir -p \
+    stalwart/etc \
+    stalwart/data \
+    bulwark/settings \
+    bulwark/admin \
+    bulwark/admin-state \
+    bulwark/telemetry
+    
+  sudo chown -R 2000:2000  ./stalwart
+  sudo chown -R 1001:65533 ./bulwark
+  ```
+3. Copy the example env files
   ```sh
    cp .env.bulwark.example .env.bulwark
    cp .env.tunnel.example .env.tunnel
   ```
-2. Edit `.env.bulwark` and set `JMAP_SERVER_URL` to your Stalwart JMAP endpoint (e.g. `https://mail.example.com`).
-3. Set up a Cloudflare Tunnel (see below) and paste the token into `.env.tunnel`.
-4. Start everything:
+4. Edit `.env.bulwark` and set `JMAP_SERVER_URL` to your Stalwart JMAP endpoint (e.g. `https://mail.example.com`).
+5. Set up a Cloudflare Tunnel (see below) and paste the token into `.env.tunnel`.
+6. Start everything:
   ```sh
    docker compose up -d
   ```
