@@ -83,6 +83,7 @@ services:
       timeout: 10s
       retries: 3
       start_period: 10s
+    command: tunnel run
 
 # You could also use docker volumes but I personally prefer mounting directly to host paths.
 # volumes:
