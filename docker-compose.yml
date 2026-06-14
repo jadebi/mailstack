@@ -35,6 +35,9 @@ services:
     container_name: bulwark
     image: ghcr.io/bulwarkmail/webmail:latest
     restart: unless-stopped
+    depends_on:
+      stalwart:
+        condition: service_healthy
     # Uncomment 3000 if you're not using Cloudflare's tunnels
     # ports:
     #   - 3000:3000
@@ -70,6 +73,11 @@ services:
     container_name: tunnel
     image: cloudflare/cloudflared:latest
     restart: unless-stopped
+    depends_on:
+      bulwark:
+        condition: service_healthy
+      stalwart:
+        condition: service_healthy
     # This won't work if you run this on windows (please don't use windows...)
     volumes:
       - /etc/localtime:/etc/localtime:ro
